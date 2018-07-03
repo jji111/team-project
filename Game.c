@@ -1,4 +1,4 @@
-# Game
+/* Game */
 
 #include <stdio.h>
 #include <Windows.h>
