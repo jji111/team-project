@@ -1,4 +1,4 @@
-/*
+﻿/*
  * 소켓 프로그램의 흐름
  * 윈속 초기화 -> 소켓생성 -> bind -> listen -> accept -> 소켓해제 -> 윈속 종료
  *							      데이터 통신 
@@ -9,7 +9,7 @@
 #pragma comment(lib, "ws2_32.lib")	// ws2_32.lib 링커 : 시스템과 이 서버를 연결한다.(? 라고 이해하면 된다)
 // lib: 동적 링크 라이브러리
 
-int main(int argc, const char *argv[])
+int main(int argc, char *argv[])
 {
 	// 원속 초기화
 	WSADATA wsaData;	// 소켓프로그램 초기화 선언 구조체
@@ -28,8 +28,6 @@ int main(int argc, const char *argv[])
 		printf("소켓 초기화 에러!\n");
 		return -2;	// 에러 발생했으나 구체적으로 무엇이다를 나타냄
 	}
-	
-	printf("원속 초기화 성공!\n");	// 초기화 알림
 
 	// 소켓 생성
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);	// 소켓 선언
@@ -38,8 +36,6 @@ int main(int argc, const char *argv[])
 		printf("소켓 생성 실패!\n");
 		return -2;
 	}
-
-	printf("소켓 생성 성공!\n");
 
 	sockinfo.sin_family = AF_INET;	// 주소 체계 정보 넣기
 	sockinfo.sin_port = htons(1234);	// 초트 번호를 저정
@@ -68,15 +64,25 @@ int main(int argc, const char *argv[])
 	if (clientsock == INVALID_SOCKET)	// 확인
 	{
 		printf("클라이언트 소켓 연결 실패!\n");
-		//return -2;
+		return -2;
 	}
 
 	send(clientsock, message, sizeof(message), 0);
-	// 문자 하나를 전송 하고 프로그램을 종료하는 것 까지 진행 해보겠다.
+	// 문자 하나를 전송 하고 프로그램을 종료하는 것 까지 진행하는 함수
 
+	if (connect(&clientinfo, (SOCKADDR*)&sockinfo, sizeof(sockinfo)) == SOCKET_ERROR)	// 클라이언트와 연결
+		puts("소켓프로그램과 연결 실패!");
 
-	// 확인
-	printf("성공\n");
+	int strlen;
+	strlen = recv(clientsock, message, sizeof(message - 1), 0);		// 메세지 수신하여 저장하는 함수
+
+	if (strlen == -1)	// 확인
+		puts("메세지 수신 실패!");
+
+	printf("Server: %d\n", message);	// 출력
+
+	closesocket(sock);	// 소켓함수 해제
+	closesocket(clientsock);	// 클라이언트 소켓 해제
 	WSACleanup();	// 원속 종료
 	return 0;
 }
