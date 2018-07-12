@@ -4,7 +4,7 @@
  *							      데이터 통신 
  */
 #include <stdio.h>		// C언어 헤더파일
-#include <WinSock2.h>	// 원도우 소켓과인터넷 주소 생성 / 원속 초기화 
+#include <Windows.h>	// 원도우 소켓과인터넷 주소 생성 / 원속 초기화 
 
 #pragma comment(lib, "ws2_32.lib")	// ws2_32.lib 링커 : 시스템과 이 서버를 연결한다.(? 라고 이해하면 된다)
 // lib: 동적 링크 라이브러리
