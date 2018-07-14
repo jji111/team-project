@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
 		SendMsg(maxpl , 1);
 
 		if (clntCnt > maxpl) {
-			printf("최대 인원은 %d 명이 입니다. 사용자가 너무 많아 서버를 종료합니다.");
+			printf("최대 인원은 %d 명이 입니다. 사용자가 너무 많아 서버를 종료합니다.", maxpl);
 			closesocket(hServSock);
 			WSACleanup();
 			system("pause");
@@ -100,11 +100,16 @@ int main(int argc, char *argv[]) {
 unsigned WINAPI HandleClnt(void *arg) {
 	SOCKET hClntSock = *((SOCKET*)arg);
 	int strLen = 0, i;
-	char msg[BUF_SIZE];
-
-	while ((strLen = recv(hClntSock, msg, sizeof(msg), 0)) != 0) {
-		SendMsg(msg, strLen);
-		printf(msg);
+	while (1) {
+		char msg[BUF_SIZE] = { 0, };
+		if ((strLen = recv(hClntSock, msg, sizeof(msg), 0)) != 0) {
+			if (strLen == -1) {
+				system("pause");
+				return 0;
+			}
+			SendMsg(msg, strLen);
+			printf("%s\n",msg);
+		}
 	}
 
 	WaitForSingleObject(hMutex, INFINITE);
