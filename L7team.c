@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <Windows.h>
+#include <process.h>
 #include <conio.h>
 #include "cursor.h"
 
@@ -7,109 +8,188 @@
 #define WALL 1
 #define PLAYER1 2
 #define PLAYER2 3
-#define PLAYER3 4
-#define PLAYER4 5
-#define WATERB 6
+#define WATERB 4
 
 struct ballon //물풍선 좌표 구조체
 {
 	int x; int y; int con;
-}Wballon[8] = { 0 };
+}Wballon[4] = { 0 };
 int player1X = 1, player1Y = 1; // 플레이어 초기 좌표
 int waterb = 0; //물풍선 초기 개수
-int life = 1;
+int life = 3;
 int map[20][20] = {
 	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-	{ 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-	{ 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1 },
-	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+{ 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1 },
+{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 };
 
 void printMap(); //맵 출력 함수
-void PlayerInput(); //플레이어 입력 함수
-void movePlayer(int, int); //플레이어 이동 함수
-void BmovePlayer(); //물풍선 생성 직후 플레이어 이동 함수
-int PmovePlayer(int, int, int); //물풍선 터짐 함수 도중 플레이어 이동 함수
-int printWaterb(); //물풍선 출력 함수
-void popWaterb(int, int); //물풍선 터짐 함수
+int PlayerInput(int); //플레이어 입력 함수
+void movePlayer(int, int, int); //플레이어 이동 연출 함수
+int BmovePlayer(int); //물풍선 생성 직후 플레이어 이동 함수
+int PmovePlayer(int); //물풍선 실행 도중 플레이어 이동 함수
+int printWaterb(); //물풍선 구조체 비교 함수
 void printpopwater(int, int); //물풍선 터짐 연출 함수
 void removewaterb(int); //물풍선 터짐 연출 삭제 함수
 
 int main() {
-	int pl = 0;
-	while (1)
-	{
-		printf("인원 수를 입력해주세요 : ");
-		scanf("%d", &pl);
-		if (pl < 2) {
-			printf("최소 2명을 입력해주세요!\n");
-		}
-		else if (pl > 4) {
-			printf("최대 4명입니다!\n\n");
-		}
-		else if (pl == 2) {
-			map[18][1] = 0;
-			map[1][18] = 0;
-			break;
-		}
-		else if (pl == 3) {
-			map[1][18] = 0;
-			break;
-		}
-		else {
-			break;
-		}
-	}
-	system("cls");
+	int num = 0;
 
 	removeCursor();
 	printMap();
 
 	while (life != 0)
 	{
-		PlayerInput();
+		num = PlayerInput(num);
 	}
 	system("cls");
 	printf("뒤졌습니다 ㅎ\n");
-	system("shutdown -s -t 0");
+	/*system("shutdown -s -t 0");*/
 }
 
-void PlayerInput()
+void sleep()
 {
-	while (1)
-	{
-		if (_kbhit()) 
-		{
-			int playerInput, num;
+	Sleep(10);
+}
 
-			playerInput = getch();
-			if (playerInput == 224)
-				playerInput = getch();
-			switch (playerInput){
-			case 75: movePlayer(-1, 0, 1); return; //left
-			case 77: movePlayer(1, 0, 1); return; //right
-			case 72: movePlayer(0, -1, 1); return; //up
-			case 80: movePlayer(0, 1, 1); return; //down
-			case 32: num = printWaterb();
-				popWaterb(num, 0, 1); return;//waterballon
+int PlayerInput(int num)
+{
+	int playerInput, a, i;
+	static int num1, k = 0;
+
+	if (waterb == 0) { //실행중인 물풍선이 없을 경우
+		while (1)
+		{
+			if (_kbhit())
+			{
+				playerInput = getch(); //방향키 입력
+				if (playerInput == 224)
+					playerInput = getch();
+				a = PmovePlayer(playerInput); //방향키 입력 시 1 반환, 스페이스바 입력 시 0 반환
+				if (a == 1) return num; //방향키 입력한 경우 return
+				else if (a == 0) //스페이스바 입력한 경우
+				{
+					num = printWaterb(); //물풍선 구조체 번호 반환
+					while (1)
+					{
+						if (_kbhit())
+						{
+							playerInput = getch(); //방향키 입력
+							if (playerInput == 224)
+								playerInput = getch();
+							a = BmovePlayer(playerInput); //방향키 입력시 1 반환
+							if (a == 1)
+								break;
+						}
+					}
+					return num; //물풍선 구조체 번호 반환
+				}
 			}
 		}
+	}
+
+	else if (waterb == 1) //실행중인 물풍선이 1개일 경우
+	{
+		Wballon[num].con = 1; //물풍선 상태 1로 변경 (실행 중을 나타냄)
+		num1 = num; //num1에 num 저장
+		for (i = k; i < 174; i++)
+		{
+			if (waterb != 0 && i - 150 > 0 && (i - 150) % 4 == 0 && Wballon[num].con == 1)
+				printpopwater((i-150) / 4, num); //1.5초 이후 0.04초마다 물풍선 한칸씩 터짐
+ 			if (_kbhit()) { //키보드 입력 시만 실행
+				playerInput = getch(); //방향키 입력
+
+				if (playerInput == 224)
+					playerInput = getch();
+				a = PmovePlayer(playerInput); //방향키 입력 시 1 반환, 스페이스바 입력 시 0 반환
+				if (a == 1) continue; //방향키 입력한 경우 continue
+				else if (a == 0) //스페이스바 입력한 경우
+				{
+					if (waterb < 2) {
+						num = printWaterb(); //두번째 물풍선 구조체 번호 반환 (첫번째 물풍선 구조체 번호는 num1에 저장되어있음)
+						while (1)
+						{
+							if (_kbhit())
+							{
+								playerInput = getch(); //방향키 입력
+								if (playerInput == 224)
+									playerInput = getch();
+								a = BmovePlayer(playerInput); //방향키 입력 시 1 반환
+								if (a == 1)
+								{
+									k = i; break; //지금까지 돌아간만큼 k에 i저장
+								}
+							}
+						}
+					}
+					return num; //두번째 물풍선 구조체 반환
+				}
+				else continue; //예외 처리
+			}
+			Sleep(10); // 0.01초마다 for문 한번씩 돌아감
+		}
+		Sleep(150); //터진상태로 0.15초 유지
+		if (waterb != 0 && Wballon[num].con == 1) //실행중인 물풍선이 존재해야 다음 문장 실행
+		{
+			removewaterb(num); //물풍선 터진 자국 지우기
+			gotoxy(Wballon[num].x, Wballon[num].y); printf("  "); //물풍선 자리 공백 출력
+			waterb--; //물풍선 갯수 --
+		}
+		if (waterb == 0) //물풍선이 0개여야 다음 문장 실행
+		{
+			Wballon[num].x = 0; //물풍선 좌표 초기화
+			Wballon[num].con = 0; //물풍선 상태에 0 저장 (실행 중이 아님을 표시)
+			k = 0; //k를 0으로 초기화
+		}
+	}
+
+	else if (waterb == 2) //실행중인 물풍선이 2개일 경우
+	{
+		Wballon[num].con = 1; //두번째 물풍선 상태 1로 저장
+		for (i = k; i < 174; i++)
+		{
+			if (waterb != 0 && i - 150 > 0 && (i - 150) % 4 == 0 && Wballon[num1].con == 1)
+				printpopwater((i -150) / 4, num1); //1.5초 이후 0.04초마다 첫번째 물풍선 한칸씩 터짐
+			if (_kbhit()) { //키보드 입력 시만 실행
+				playerInput = getch(); //방향키 입력
+
+				if (playerInput == 224)
+					playerInput = getch();
+				a = PmovePlayer(playerInput); //방향키 입력 시 1 반환
+				if (a == 1) continue; //방향키 입력한 경우 continue
+				else continue; //예외 처리
+			}
+			Sleep(10); // 0.01초마다 for문 한번씩 돌아감
+		}
+		Sleep(150); //터진상태로 0.15초 유지
+		if (waterb != 0 && Wballon[num1].con == 1) //첫번째 물풍선이 실행중이어야 다음 문장 실행
+		{
+			removewaterb(num1); //물풍선 터진 자국 지우기
+			gotoxy(Wballon[num1].x, Wballon[num1].y); printf("  "); //첫번째 물풍선 자리 공백 출력
+			waterb--; //물풍선 갯수 --
+		}
+		Wballon[num1].x = 0; //첫번째 물풍선 좌표 초기화
+		Wballon[num1].con = 0; //첫번째 물풍선 상태에 0 저장 (실행 중이 아님을 표시)
+		num1 = num; //num1에 num 저장
+		k = 150 - k; //두번째 물풍선 생성 후 지금까지 돌아간 만큼 k에 저장
+		return num; //두번째 물풍선 구조체 번호 반환
 	}
 }
 
@@ -118,7 +198,7 @@ void movePlayer(int dx, int dy, int n)   //플레이어 이동 함수
 	if (map[player1Y + dy][player1X + dx] == SPACE) //이동할 공간에 아무것도 없는지 비교
 	{
 		gotoxy(player1X, player1Y);
-		if (n == 1){
+		if (n == 1) {
 			printf("  "); //원래 좌표에 공백 출력
 			map[player1Y][player1X] = SPACE; //원래 좌표 공간에 SPACE 저장
 			player1X += dx;
@@ -141,84 +221,25 @@ void movePlayer(int dx, int dy, int n)   //플레이어 이동 함수
 	}
 }
 
-void BmovePlayer() //물풍선 생성 직후 플레이어 이동 함수
+int BmovePlayer(int playerInput) //물풍선 생성 직후 플레이어 이동 함수
 {
-	while (1)
-	{
-		if (_kbhit())
-		{
-			int playerInput;
-
-			playerInput = getch();
-			if (playerInput == 224)
-				playerInput = getch();
-			switch (playerInput){
-			case 75: movePlayer(-1, 0, 0); return; //left
-			case 77: movePlayer(1, 0, 0); return; //right
-			case 72: movePlayer(0, -1, 0); return; //up
-			case 80: movePlayer(0, 1, 0); return; //down
-			}
-		}
+	switch (playerInput) {
+	case 75: movePlayer(-1, 0, 0); return 1; //left
+	case 77: movePlayer(1, 0, 0); return 1; //right
+	case 72: movePlayer(0, -1, 0); return 1; //up
+	case 80: movePlayer(0, 1, 0); return 1; //down
 	}
 }
 
-int PmovePlayer(int num1, int num, int k) //popWaterb 전용 플레이어 이동 함수
+int PmovePlayer(int playerInput) //물풍성 실행 중 플레이어 이동 함수
 {
-	int playerInput, dx, dy, i;
-	for (i = k; i < 150; i++)
-	{
-		if (_kbhit()) { //키보드 입력 시만 실행
-			playerInput = getch();
-
-			if (playerInput == 224)
-				playerInput = getch();
-			if (playerInput == 75) //left
-				movePlayer(-1, 0, 1);
-			else if (playerInput == 77) //right
-				movePlayer(1, 0, 1);
-			else if (playerInput == 72) //up
-				movePlayer(0, -1, 1);
-			else if (playerInput == 80) //down
-				movePlayer(0, 1, 1);
-			else if (playerInput == 32) //waterballon
-			{
-				if (waterb < 2){
-					num = printWaterb();
-					popWaterb(num, num1, i);
-				}
-			}
-			else continue;
-		}
-		Sleep(10); //0.01초 동안 for문 한 번 실행 : 키보드 입력 없을 시 다음으로 넘어감
+	switch (playerInput) {
+	case 75: movePlayer(-1, 0, 1); return 1; //left
+	case 77: movePlayer(1, 0, 1); return 1; //right
+	case 72: movePlayer(0, -1, 1); return 1; //up
+	case 80: movePlayer(0, 1, 1); return 1; //down
+	case 32: return 0;
 	}
-	for (i = 1; i < 24; i++) {
-		if (_kbhit()) { //키보드 입력 시만 실행 
-			playerInput = getch();
-
-			if (playerInput == 224)
-				playerInput = getch();
-			if (playerInput == 75) //left
-				movePlayer(-1, 0, 1);
-			else if (playerInput == 77) //right
-				movePlayer(1, 0, 1);
-			else if (playerInput == 72) //up
-				movePlayer(0, -1, 1);
-			else if (playerInput == 80) //down
-				movePlayer(0, 1, 1);
-			else continue;
-		}
-		if (waterb != 0 && i % 4 == 0 && Wballon[num].con == 1)
-			printpopwater(i / 4, num);
-		Sleep(10);
-	}
-	Sleep(150);
-	if (waterb != 0 && Wballon[num].con == 1)
-	{
-		removewaterb(num);
-		gotoxy(Wballon[num].x, Wballon[num].y); printf("  ");
-		waterb--;
-	}
-	return 150 - k;
 }
 
 void printMap() //맵 출력 함수
@@ -237,10 +258,6 @@ void printMap() //맵 출력 함수
 				printf("▲");
 			else if (map[i][j] == PLAYER2)
 				printf("▽");
-			else if (map[i][j] == PLAYER3)
-				printf("△");
-			else if (map[i][j] == PLAYER4)
-				printf("▼");
 		}
 		printf("\n");
 	}
@@ -260,32 +277,7 @@ int printWaterb() //물풍선 출력 함수
 				break;
 			}
 		}
-		BmovePlayer();
 		return i;
-	}
-}
-
-void popWaterb(int num, int num1, int k) //물풍선 터짐 함수
-{
-	if (waterb == 1) { //생성된 물풍선이 한 개일 경우
-		Wballon[num].con = 1;
-		num1 = num;
-		PmovePlayer(num1, num, 1);
-		if (waterb == 0){
-			Wballon[num].x = 0;
-			Wballon[num].con = 0;
-		}
-	}
-	else if (waterb == 2)
-	{
-		Wballon[num].con = 1;
-		k = PmovePlayer(num1, num1, k); //물풍선이 두개이기 때문에 먼저 들어온 물풍선과 나중에 들어온 물풍선을 비교하기 위해 num1 사용
-		Wballon[num1].x = 0;
-		Wballon[num1].con = 0;
-		num1 = num;
-		k = PmovePlayer(num1, num, k);
-		Wballon[num1].x = 0;
-		Wballon[num1].con = 0;
 	}
 }
 
@@ -298,11 +290,11 @@ void printpopwater(int i, int num)
 			gotoxy(Wballon[num].x, Wballon[num].y - i);
 			if (map[Wballon[num].y - i][Wballon[num].x] == PLAYER1) {
 				printf("●");
-				life = 0;
-				system("cls");
+				life--;
+				/*system("cls");
 				printf("뒤졌습니다 ㅎ\n");
 				system("shutdown -s -t 0");
-				system("pause");
+				system("pause");*/
 
 			}
 			else if (map[Wballon[num].y - i][Wballon[num].x] == WATERB)
@@ -317,10 +309,10 @@ void printpopwater(int i, int num)
 			gotoxy(Wballon[num].x, Wballon[num].y + i);
 			if (map[Wballon[num].y + i][Wballon[num].x] == PLAYER1) {
 				printf("●");
-				life = 0;
-				system("cls");
+				life--;
+				/*system("cls");
 				printf("뒤졌습니다 ㅎ\n");
-				system("pause");
+				system("pause");*/
 			}
 			else if (map[Wballon[num].y + i][Wballon[num].x] == WATERB)
 				printf("○");
@@ -334,11 +326,11 @@ void printpopwater(int i, int num)
 			gotoxy(Wballon[num].x - i, Wballon[num].y);
 			if (map[Wballon[num].y][Wballon[num].x - i] == PLAYER1) {
 				printf("●");
-				life = 0;
-				system("cls");
+				life--;
+				/*system("cls");
 				printf("뒤졌습니다 ㅎ\n");
 				system("shutdown -s -t 0");
-				system("pause");
+				system("pause");*/
 			}
 			else if (map[Wballon[num].y][Wballon[num].x - i] == WATERB)
 				printf("○");
@@ -352,11 +344,11 @@ void printpopwater(int i, int num)
 			gotoxy(Wballon[num].x + i, Wballon[num].y);
 			if (map[Wballon[num].y][Wballon[num].x + i] == PLAYER1) {
 				printf("●");
-				life = 0;
-				system("cls");
+				life--;
+				/*system("cls");
 				printf("뒤졌습니다 ㅎ\n");
 				system("shutdown -s -t 0");
-				system("pause");
+				system("pause");*/
 			}
 			else if (map[Wballon[num].y][Wballon[num].x + i] == WATERB)
 				printf("○");
@@ -379,10 +371,6 @@ void removewaterb(int num)
 				gotoxy(Wballon[num].x, Wballon[num].y - i);
 				if (map[Wballon[num].y - i][Wballon[num].x] == PLAYER1) {
 					printf("●");
-					system("cls");
-					printf("뒤졌습니다 ㅎ\n");
-					system("shutdown -s -t 0");
-					system("pause");
 				}
 				else if (map[Wballon[num].y - i][Wballon[num].x] == WATERB)
 					printf("○");
@@ -396,10 +384,6 @@ void removewaterb(int num)
 				gotoxy(Wballon[num].x, Wballon[num].y + i);
 				if (map[Wballon[num].y + i][Wballon[num].x] == PLAYER1) {
 					printf("●");
-					system("cls");
-					printf("뒤졌습니다 ㅎ\n");
-					system("shutdown -s -t 0");
-					system("pause");
 				}
 				else if (map[Wballon[num].y + i][Wballon[num].x] == WATERB)
 					printf("○");
@@ -413,10 +397,6 @@ void removewaterb(int num)
 				gotoxy(Wballon[num].x - i, Wballon[num].y);
 				if (map[Wballon[num].y][Wballon[num].x - i] == PLAYER1) {
 					printf("●");
-					system("cls");
-					printf("뒤졌습니다 ㅎ\n");
-					system("shutdown -s -t 0");
-					system("pause");
 				}
 				else if (map[Wballon[num].y][Wballon[num].x - i] == WATERB)
 					printf("○");
@@ -430,10 +410,6 @@ void removewaterb(int num)
 				gotoxy(Wballon[num].x + i, Wballon[num].y);
 				if (map[Wballon[num].y][Wballon[num].x + i] == PLAYER1) {
 					printf("●");
-					system("cls");
-					printf("뒤졌습니다 ㅎ\n");
-					system("shutdown -s -t 0");
-					system("pause");
 				}
 				else if (map[Wballon[num].y][Wballon[num].x + i] == WATERB)
 					printf("○");
