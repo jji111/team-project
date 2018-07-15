@@ -1,12 +1,44 @@
 #include <stdio.h>
 #include <Windows.h>
-#include <process.h>
 #include <conio.h>
 #include "cursor.h"
 #include "start.h"
-#include "player1or2.h"
 
+#define SPACE 0
+#define WALL 1
+#define PLAYER1 2
+#define PLAYER2 3
+#define WATERB 4
+
+struct ballon //물풍선 좌표 구조체
+{
+	int x; int y; int con;
+}Wballon[4] = { 0 };
+int player1X = 1, player1Y = 1, player2X = 18, player2Y = 18; // 플레이어 초기 좌표
+int waterb = 0; //물풍선 초기 개수
 int life = 3, player;
+int map[20][20] = {
+	{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+{ 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1 },
+{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+};
 
 void printMap(); //맵 출력 함수
 int PlayerInput(int); //플레이어 입력 함수
@@ -18,7 +50,7 @@ void printpopwater(int, int); //물풍선 터짐 연출 함수
 void removewaterb(int); //물풍선 터짐 연출 삭제 함수
 
 int main() {
-	int num = 0, player;
+	int num = 0;
 
 	removeCursor();
 	start();
@@ -161,10 +193,58 @@ int PlayerInput(int num)
 
 void movePlayer(int dx, int dy, int n)   //플레이어 이동 함수
 {
-	if (player == 1)
-		movePlayer1(dx, dy, n);
-	else
-		movePlayer2(dx, dy, n);
+	if (player == 1) {
+		if (map[player1Y + dy][player1X + dx] == SPACE) //이동할 공간에 아무것도 없는지 비교
+		{
+			gotoxy(player1X, player1Y);
+			if (n == 1) {
+				printf("  "); //원래 좌표에 공백 출력
+				map[player1Y][player1X] = SPACE; //원래 좌표 공간에 SPACE 저장
+				player1X += dx;
+				player1Y += dy;
+				gotoxy(player1X, player1Y);
+				printf("▲"); //이동 좌표에 플레이어 출력
+				map[player1Y][player1X] = PLAYER1; //이동 좌표 공간에 PLAYER1 저장
+			}
+			else
+			{
+				printf("○"); //원래 좌표에 물풍선 출력
+				map[player1Y][player1X] = WATERB; //원래 좌표 공간에 WATERB 저장
+				player1X += dx;
+				player1Y += dy;
+				gotoxy(player1X, player1Y);
+				printf("▲"); //이동 좌표에 플레이어 출력
+				map[player1Y][player1X] = PLAYER1; //이동 좌표 공간에 PLAYER1 저장
+				waterb++;
+			}
+		}
+	}
+	else if (player == 2) {
+		if (map[player2Y + dy][player2X + dx] == SPACE) //이동할 공간에 아무것도 없는지 비교
+		{
+			gotoxy(player2X, player2Y);
+			if (n == 1) {
+				printf("  "); //원래 좌표에 공백 출력
+				map[player2Y][player2X] = SPACE; //원래 좌표 공간에 SPACE 저장
+				player2X += dx;
+				player2Y += dy;
+				gotoxy(player2X, player2Y);
+				printf("▽"); //이동 좌표에 플레이어 출력
+				map[player2Y][player2X] = PLAYER2; //이동 좌표 공간에 PLAYER1 저장
+			}
+			else
+			{
+				printf("○"); //원래 좌표에 물풍선 출력
+				map[player2Y][player2X] = WATERB; //원래 좌표 공간에 WATERB 저장
+				player2X += dx;
+				player2Y += dy;
+				gotoxy(player2X, player2Y);
+				printf("▽"); //이동 좌표에 플레이어 출력
+				map[player2Y][player2X] = PLAYER2; //이동 좌표 공간에 PLAYER1 저장
+				waterb++;
+			}
+		}
+	}
 }
 
 int BmovePlayer(int playerInput) //물풍선 생성 직후 플레이어 이동 함수
@@ -211,12 +291,38 @@ void printMap() //맵 출력 함수
 
 int printWaterb() //물풍선 출력 함수
 {
-	int num;
-	if (player == 1)
-		num = printWaterb1();
-	else
-		num = printWaterb2();
-	return num;
+	int i;
+	if (player == 1) {
+		if (waterb < 2) //현재 생성되어있는 물풍선 개수 비교
+		{
+			for (i = 0; i <= 1; i++)
+			{
+				if (Wballon[i].x == 0) //비어있는 구조체인지 확인
+				{
+					Wballon[i].x = player1X; //i번 물풍선 X좌표에 플레이어 X좌표 저장
+					Wballon[i].y = player1Y; //i번 물풍선 Y좌표에 플레이어 Y좌표 저장
+					break;
+				}
+			}
+			return i;
+		}
+	}
+	else if (player == 2)
+	{
+		if (waterb < 2) //현재 생성되어있는 물풍선 개수 비교
+		{
+			for (i = 2; i <= 3; i++)
+			{
+				if (Wballon[i].x == 0) //비어있는 구조체인지 확인
+				{
+					Wballon[i].x = player2X; //i번 물풍선 X좌표에 플레이어 X좌표 저장
+					Wballon[i].y = player2Y; //i번 물풍선 Y좌표에 플레이어 Y좌표 저장
+					break;
+				}
+			}
+			return i;
+		}
+	}
 }
 
 void printpopwater(int i, int num)
