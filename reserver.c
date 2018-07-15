@@ -1,112 +1,88 @@
-#include <stdio.h>		// 표준 C라이브러리
-#include <stdlib.h>	
-#include <string.h>		// strcpy, atoi, memset
-#include <Windows.h>	// 소켓, pause
-#include <process.h>
-
-#pragma comment(lib, "ws2_32.lib")	// 자동 라이브러리 넣기
-
-#define BUF_SIZE 100
-#define MAX_CLNT 4		// 최대 사용자(클라이언트)
-
-unsigned WINAPI HandleClnt(void *arg);
-void SendMsg(char *msg, int len);	// 클라이언트에서 
-void ErrorHandling(char *msg);
-
-// 매개 변수
-int clntCnt = 0;
-SOCKET clntSocks[MAX_CLNT];
-HANDLE hMutex;
-
-int main(int argc, char *argv[]) {
-	WSADATA wsaData;
-	SOCKET hServSock, hClntSock;
-	SOCKADDR_IN servAdr, clntAdr;
-	int clntAdrSz;
-	HANDLE hThread;
-	printf("port를 입력해주세요 : ");
-	char port[100] = { 0 };
-	fgets(port, 100, stdin);
-
-	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-		ErrorHandling((char*)"WSAStartup() Error");
-	}
-
-	hMutex = CreateMutex(NULL, FALSE, NULL);
-	// CreateMutex: 원도우 중복 방지실행
-	hServSock = socket(PF_INET, SOCK_STREAM, 0);
-	memset(&servAdr, 0, sizeof(servAdr));	// servAdr의 NULL값으로 초기화
-	servAdr.sin_family = AF_INET;
-	servAdr.sin_addr.s_addr = htonl(INADDR_ANY);
-	servAdr.sin_port = htons(atoi(port));
-	// htons: 네트워크 바이트 정렬 방식의 4바이트 데이터를 호스트 바이트 정렬 방식으로 변환
-
-	if (bind(hServSock, (SOCKADDR*)&servAdr, sizeof(servAdr)) == SOCKET_ERROR) {
-		ErrorHandling((char*)"bind() error");
-	}
-	if (listen(hServSock, 5) == SOCKET_ERROR) {
-		ErrorHandling((char*)"listen() Error");
-	}
-
-	// 소켓 신호 받기
-	while (1) {
-		clntAdrSz = sizeof(clntAdr);
-		hClntSock = accept(hServSock, (SOCKADDR*)&clntAdr, &clntAdrSz);
-		puts("클라이언트에서 메세지 받는 중: ");
-		if (-1 == hClntSock)
-			ErrorHandling((char*)"클라이언트 연결 수락 실패!");
-		WaitForSingleObject(hMutex, INFINITE);
-		clntSocks[clntCnt++] = hClntSock;
-		ReleaseMutex(hMutex);	// 윈도우 중복방지 제거
-		hThread = (HANDLE)_beginthreadex(NULL, 0, HandleClnt, (void*)&hClntSock, 0, NULL);
-		printf("Connect client IP : %s\n", inet_ntoa(clntAdr.sin_addr));	// inet_ntoa: 네트워크 주소 반환
-	}
-
-	closesocket(hServSock);
-	WSACleanup();
-	system("pause");
-	return 0;
-}
-
-unsigned WINAPI HandleClnt(void *arg) {
-	SOCKET hClntSock = *((SOCKET*)arg);
-	int strLen = 0, i;
-	char msg[BUF_SIZE];
-
-	while ((strLen = recv(hClntSock, msg, sizeof(msg), 0)) != 0) {
-		SendMsg(msg, strLen);
-		fputs(msg, stdout);
-	}
-
-	WaitForSingleObject(hMutex, INFINITE);
-
-	for (i = 0; i < clntCnt; i++) {
-		if (hClntSock == clntSocks[i]) {
-			while (i++ < clntCnt - 1)
-				clntSocks[i] = clntSocks[i + 1];
-			break;
-		}
-	}
-	clntCnt--;
-
-	ReleaseMutex(hMutex);
-	closesocket(hClntSock);
-	return 0;
-}
-
-void SendMsg(char *msg, int len) {
-	int i;
-	WaitForSingleObject(hMutex, INFINITE);
-	for (i = 0; i < clntCnt; i++) {
-		send(clntSocks[i], msg, len, 0);
-	}
-	ReleaseMutex(hMutex);
-}
-
-// 에러
-void ErrorHandling(char *msg) {
-	fputs(msg, stderr);
-	fputc('\n', stderr);
-	system("pause");
-	exit(1);
-}
+-/*
+- * 소켓 프로그램의 흐름
+- * 윈속 초기화 -> 소켓생성 -> bind -> listen -> accept -> 소켓해제 -> 윈속 종료
+- *							      데이터 통신 
+- */
+-#include <stdio.h>		// C언어 헤더파일
+-#include <Windows.h>	// 원도우 소켓과인터넷 주소 생성 / 원속 초기화 
+-
+-#pragma comment(lib, "ws2_32.lib")	// ws2_32.lib 링커 : 시스템과 이 서버를 연결한다.(? 라고 이해하면 된다)
+-// lib: 동적 링크 라이브러리
+-
+-int main(int argc, char *argv[])
+-{
+-	// 원속 초기화
+-	WSADATA wsaData;	// 소켓프로그램 초기화 선언 구조체
+-
+-	SOCKET sock;	// 서버 구조체
+-	struct sockaddr_in sockinfo;	// 서버소켓 주소 구조체 선언
+-
+-	// 클라이언트 소켓 함수
+-	SOCKET clientsock;
+-	struct sockaddr_in clientinfo;
+-	int clientsize;
+-	char message[] = "success";
+-
+-	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)	// 초기화 확인
+-	{
+-		printf("소켓 초기화 에러!\n");
+-		return -2;	// 에러 발생했으나 구체적으로 무엇이다를 나타냄
+-	}
+-
+-	// 소켓 생성
+-	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);	// 소켓 선언
+-	if (sock == INVALID_SOCKET)	// INVALID_SOCKET은 에러코드 값을 의미한다.
+-	{
+-		printf("소켓 생성 실패!\n");
+-		return -2;
+-	}
+-
+-	sockinfo.sin_family = AF_INET;	// 주소 체계 정보 넣기
+-	sockinfo.sin_port = htons(1234);	// 초트 번호를 저정
+-	sockinfo.sin_addr.s_addr = htonl(INADDR_ANY);	//	 IP 주소를 지정하는 부분이다 서버 입장에서는 모든 인터넷 주소로 클라이언트를 대기 해야 한다. 
+-	// INADDR_ANY 라는 0.0.0.0 주소를 사용하는 것
+-
+-	// bind원형: bind(Int bind ( 소켓 값 , (SOCKADDR*)&소켓주소구조체 저장값 , sizeof(소켓주소구조체이름) )
+-	if (bind(sock, (SOCKADDR*)&sockinfo, sizeof(sockinfo)) == SOCKET_ERROR)	// 소켓 서버 프로그램	SOCKET_ERROR
+-	{
+-		printf("bind 실패!\n");
+-		return -2;
+-	}
+-
+-	// 데이터 통신 함수: listen, listener_d: 소켓 핸들 값
+-	if (listen(sock, 5) == SOCKET_ERROR)
+-	{
+-		printf("대기열 실패!\n");
+-		return -2;
+-	}
+-
+-	clientsize = sizeof(clientinfo);	// 사이즈 값 저장
+-	// 원형: SOCKET accept ( 서버 소켓 , (SOCKADDR*)&클라이언트주소값, &클라이언트 주소값 사이즈 );
+-	printf("클라이언트로부터 접속을 기다리고 있습니다...\n");
+-	clientsock = accept(sock, (SOCKADDR*)&clientinfo, &clientsize);	// accept함수: 서버 프로그램 안에 클라이언트 연결 소켓
+-
+-	if (clientsock == INVALID_SOCKET)	// 확인
+-	{
+-		printf("클라이언트 소켓 연결 실패!\n");
+-		return -2;
+-	}
+-
+-	send(clientsock, message, sizeof(message), 0);
+-	// 문자 하나를 전송 하고 프로그램을 종료하는 것 까지 진행하는 함수
+-
+-	if (connect(&clientinfo, (SOCKADDR*)&sockinfo, sizeof(sockinfo)) == SOCKET_ERROR)	// 클라이언트와 연결
+-		puts("소켓프로그램과 연결 실패!");
+-
+-	int strlen;
+-	strlen = recv(clientsock, message, sizeof(message - 1), 0);		// 메세지 수신하여 저장하는 함수
+-
+-	if (strlen == -1)	// 확인
+-		puts("메세지 수신 실패!");
+-
+-	printf("Server: %d\n", message);	// 출력
+-
+-	closesocket(sock);	// 소켓함수 해제
+-	closesocket(clientsock);	// 클라이언트 소켓 해제
+-	WSACleanup();	// 원속 종료
+-	return 0;
+-}
