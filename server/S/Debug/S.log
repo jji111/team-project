@@ -1,0 +1,13 @@
+﻿  S.c
+c:\users\choih0401\desktop\server\s\s.c(36): warning C4013: 'gets' undefined; assuming extern returning int
+c:\users\choih0401\desktop\server\s\s.c(35): warning C4101: 'msg': unreferenced local variable
+c:\users\choih0401\desktop\server\s\s.c(34): warning C4101: 'i': unreferenced local variable
+c:\users\choih0401\desktop\server\s\s.c(87): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\choih0401\desktop\server\s\s.c(102): warning C4047: '=': 'char' differs in levels of indirection from 'char *'
+c:\users\choih0401\desktop\server\s\s.c(115): warning C4047: '=': 'char' differs in levels of indirection from 'char *'
+c:\users\choih0401\desktop\server\s\s.c(124): warning C4047: '=': 'char' differs in levels of indirection from 'void *'
+c:\users\choih0401\desktop\server\s\s.c(103): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\stdio.h(1774): note: see declaration of 'sprintf'
+c:\users\choih0401\desktop\server\s\s.c(116): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\stdio.h(1774): note: see declaration of 'sprintf'
+  S.vcxproj -> C:\Users\Choih0401\Desktop\server\Debug\S.exe

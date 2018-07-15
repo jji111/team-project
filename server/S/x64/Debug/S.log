@@ -1,0 +1,5 @@
+﻿  S.c
+c:\users\choih0401\desktop\server\s\s.c(36): warning C4013: 'gets' undefined; assuming extern returning int
+c:\users\choih0401\desktop\server\s\s.c(35): warning C4101: 'msg': unreferenced local variable
+c:\users\choih0401\desktop\server\s\s.c(34): warning C4101: 'i': unreferenced local variable
+  S.vcxproj -> C:\Users\Choih0401\Desktop\server\x64\Debug\S.exe
