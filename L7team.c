@@ -42,7 +42,7 @@ int map[20][20] = {
 
 void printMap(); //맵 출력 함수
 int PlayerInput(int); //플레이어 입력 함수
-void movePlayer(int, int, int); //플레이어 이동 연출 함수
+int movePlayer(int, int, int); //플레이어 이동 연출 함수
 int BmovePlayer(int); //물풍선 생성 직후 플레이어 이동 함수
 int PmovePlayer(int); //물풍선 실행 도중 플레이어 이동 함수
 int printWaterb(); //물풍선 구조체 비교 함수
@@ -110,8 +110,8 @@ int PlayerInput(int num)
 		for (i = k; i < 174; i++)
 		{
 			if (waterb != 0 && i - 150 > 0 && (i - 150) % 4 == 0 && Wballon[num].con == 1)
-				printpopwater((i-150) / 4, num); //1.5초 이후 0.04초마다 물풍선 한칸씩 터짐
- 			if (_kbhit()) { //키보드 입력 시만 실행
+				printpopwater((i - 150) / 4, num); //1.5초 이후 0.04초마다 물풍선 한칸씩 터짐
+			if (_kbhit()) { //키보드 입력 시만 실행
 				playerInput = getch(); //방향키 입력
 
 				if (playerInput == 224)
@@ -161,10 +161,10 @@ int PlayerInput(int num)
 	else if (waterb == 2) //실행중인 물풍선이 2개일 경우
 	{
 		Wballon[num].con = 1; //두번째 물풍선 상태 1로 저장
-		for (i = k; i < 174; i++)
+		for (i = k; i < 168; i++)
 		{
-			if (waterb != 0 && i - 150 > 0 && (i - 150) % 4 == 0 && Wballon[num1].con == 1)
-				printpopwater((i -150) / 4, num1); //1.5초 이후 0.04초마다 첫번째 물풍선 한칸씩 터짐
+			if (waterb != 0 && i - 150 > 0 && (i - 150) % 3 == 0 && Wballon[num1].con == 1)
+				printpopwater((i - 150) / 3, num1); //1.5초 이후 0.04초마다 첫번째 물풍선 한칸씩 터짐
 			if (_kbhit()) { //키보드 입력 시만 실행
 				playerInput = getch(); //방향키 입력
 
@@ -191,7 +191,7 @@ int PlayerInput(int num)
 	}
 }
 
-void movePlayer(int dx, int dy, int n)   //플레이어 이동 함수
+int movePlayer(int dx, int dy, int n)   //플레이어 이동 함수
 {
 	if (player == 1) {
 		if (map[player1Y + dy][player1X + dx] == SPACE) //이동할 공간에 아무것도 없는지 비교
@@ -218,6 +218,7 @@ void movePlayer(int dx, int dy, int n)   //플레이어 이동 함수
 				waterb++;
 			}
 		}
+		else return 0;
 	}
 	else if (player == 2) {
 		if (map[player2Y + dy][player2X + dx] == SPACE) //이동할 공간에 아무것도 없는지 비교
@@ -244,16 +245,26 @@ void movePlayer(int dx, int dy, int n)   //플레이어 이동 함수
 				waterb++;
 			}
 		}
+		else return 0;
 	}
 }
 
 int BmovePlayer(int playerInput) //물풍선 생성 직후 플레이어 이동 함수
 {
+	int a;
 	switch (playerInput) {
-	case 75: movePlayer(-1, 0, 0); return 1; //left
-	case 77: movePlayer(1, 0, 0); return 1; //right
-	case 72: movePlayer(0, -1, 0); return 1; //up
-	case 80: movePlayer(0, 1, 0); return 1; //down
+	case 75: a = movePlayer(-1, 0, 0); //left
+		if (a != 0) return 1;
+		else return 0;
+	case 77: a = movePlayer(1, 0, 0); //right
+		if (a != 0) return 1;
+		else return 0;
+	case 72: a = movePlayer(0, -1, 0); //up
+		if (a != 0) return 1;
+		else return 0;
+	case 80: a = movePlayer(0, 1, 0); //down
+		if (a != 0) return 1;
+		else return 0;
 	}
 }
 
@@ -327,18 +338,12 @@ int printWaterb() //물풍선 출력 함수
 
 void printpopwater(int i, int num)
 {
-	int playernum;
-	if (player == 1)
-		playernum = PLAYER1;
-	else
-		playernum = PLAYER2;
-
 	if (map[Wballon[num].y - i][Wballon[num].x] != WALL) //물풍선 위쪽에 벽이 있는지 비교
 	{
 		if (Wballon[num].y - i > 0)
 		{
 			gotoxy(Wballon[num].x, Wballon[num].y - i);
-			if (map[Wballon[num].y - i][Wballon[num].x] == playernum) {
+			if (map[Wballon[num].y - i][Wballon[num].x] == PLAYER1 || map[Wballon[num].y - i][Wballon[num].x] == PLAYER2) {
 				printf("●");
 				life--;
 				/*system("cls");
@@ -357,7 +362,7 @@ void printpopwater(int i, int num)
 		if (Wballon[num].y + i < 20)
 		{
 			gotoxy(Wballon[num].x, Wballon[num].y + i);
-			if (map[Wballon[num].y + i][Wballon[num].x] == playernum) {
+			if (map[Wballon[num].y + i][Wballon[num].x] == PLAYER1 || map[Wballon[num].y + i][Wballon[num].x] == PLAYER2) {
 				printf("●");
 				life--;
 				/*system("cls");
@@ -374,7 +379,7 @@ void printpopwater(int i, int num)
 		if (Wballon[num].x - i > 0)
 		{
 			gotoxy(Wballon[num].x - i, Wballon[num].y);
-			if (map[Wballon[num].y][Wballon[num].x - i] == playernum) {
+			if (map[Wballon[num].y][Wballon[num].x - i] == PLAYER1 || map[Wballon[num].y][Wballon[num].x - i] == PLAYER2) {
 				printf("●");
 				life--;
 				/*system("cls");
@@ -392,7 +397,7 @@ void printpopwater(int i, int num)
 		if (Wballon[num].x + i < 20)
 		{
 			gotoxy(Wballon[num].x + i, Wballon[num].y);
-			if (map[Wballon[num].y][Wballon[num].x + i] == playernum) {
+			if (map[Wballon[num].y][Wballon[num].x + i] == PLAYER1 || map[Wballon[num].y][Wballon[num].x + i] == PLAYER2) {
 				printf("●");
 				life--;
 				/*system("cls");
@@ -409,12 +414,7 @@ void printpopwater(int i, int num)
 
 void removewaterb(int num)
 {
-	int i, playernum;
-	if (player == 1)
-		playernum = PLAYER1;
-	else
-		playernum = PLAYER2;
-
+	int i;
 	for (i = 0; i <= 6; i++)
 	{
 		if (map[Wballon[num].y - i][Wballon[num].x] != WALL) //물풍선 위쪽에 벽이 있는지 비교
@@ -422,7 +422,7 @@ void removewaterb(int num)
 			if (Wballon[num].x >= 0 && Wballon[num].y - i >= 0)
 			{
 				gotoxy(Wballon[num].x, Wballon[num].y - i);
-				if (map[Wballon[num].y - i][Wballon[num].x] == playernum) {
+				if (map[Wballon[num].y - i][Wballon[num].x] == PLAYER1 || map[Wballon[num].y - i][Wballon[num].x] == PLAYER2) {
 					printf("●");
 				}
 				else if (map[Wballon[num].y - i][Wballon[num].x] == WATERB)
@@ -435,7 +435,7 @@ void removewaterb(int num)
 			if (Wballon[num].x >= 0 && Wballon[num].y + i >= 0)
 			{
 				gotoxy(Wballon[num].x, Wballon[num].y + i);
-				if (map[Wballon[num].y + i][Wballon[num].x] == playernum) {
+				if (map[Wballon[num].y + i][Wballon[num].x] == PLAYER1 || map[Wballon[num].y + i][Wballon[num].x] == PLAYER2) {
 					printf("●");
 				}
 				else if (map[Wballon[num].y + i][Wballon[num].x] == WATERB)
@@ -448,7 +448,7 @@ void removewaterb(int num)
 			if (Wballon[num].x - i >= 0 && Wballon[num].y >= 0)
 			{
 				gotoxy(Wballon[num].x - i, Wballon[num].y);
-				if (map[Wballon[num].y][Wballon[num].x - i] == playernum) {
+				if (map[Wballon[num].y][Wballon[num].x - i] == PLAYER1 || map[Wballon[num].y][Wballon[num].x - i] == PLAYER2) {
 					printf("●");
 				}
 				else if (map[Wballon[num].y][Wballon[num].x - i] == WATERB)
@@ -461,7 +461,7 @@ void removewaterb(int num)
 			if (Wballon[num].x + i >= 0 && Wballon[num].y >= 0)
 			{
 				gotoxy(Wballon[num].x + i, Wballon[num].y);
-				if (map[Wballon[num].y][Wballon[num].x + i] == playernum) {
+				if (map[Wballon[num].y][Wballon[num].x + i] == PLAYER1 || map[Wballon[num].y][Wballon[num].x + i] == PLAYER2) {
 					printf("●");
 				}
 				else if (map[Wballon[num].y][Wballon[num].x + i] == WATERB)
